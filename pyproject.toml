@@ -10,7 +10,6 @@ readme = "README.md"
 requires-python = ">=3.8"
 license = { file = "LICENSE" }
 authors = [
-    # 只保留公开用户名；需要邮箱时自行补充
     { name = "Furfuryl-Alcohol" },
 ]
 keywords = ["svg", "gif", "animation", "smil", "css-animation", "playwright"]
@@ -31,8 +30,8 @@ svg2gif = "svg2gif:main"
 svg2gif-gui = "svg2gif_gui:main"
 
 [project.urls]
-# 仓库名按实际修改
 Homepage = "https://github.com/Furfuryl-Alcohol/svg2gif"
+Issues = "https://github.com/Furfuryl-Alcohol/svg2gif/issues"
 
 [tool.setuptools]
 py-modules = ["svg2gif", "svg2gif_gui"]

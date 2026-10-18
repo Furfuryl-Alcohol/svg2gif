@@ -11,11 +11,21 @@
 ## 安装
 
 ```bash
-pip install -e .          # 或者 pip install playwright pillow
+git clone https://github.com/Furfuryl-Alcohol/svg2gif.git
+cd svg2gif
+pip install -e .
 python -m playwright install chromium
 ```
 
-只需要一次；Chromium 是无头运行的，不会弹窗。
+最后一步只需要执行一次；Chromium 是无头运行的，不会弹窗。
+
+不想装成包也可以，两个脚本之间是普通 `import`，同目录直接运行即可：
+
+```bash
+pip install playwright pillow
+python -m playwright install chromium
+python svg2gif.py fig.svg fig.gif
+```
 
 Windows / macOS 的官方 Python 自带 tkinter；Debian/Ubuntu 上跑图形界面需要
 `sudo apt install python3-tk`。Linux 容器里 Chromium 常因沙箱起不来，可以：
@@ -59,6 +69,12 @@ python svg2gif.py fig.svg fig.gif --bg "#ffffff"
 python svg2gif.py fig.svg fig.gif --width 800 --verify
 ```
 
+仓库自带一个 2 秒循环的 `examples/demo.svg`，可以直接拿它试：
+
+```bash
+python svg2gif.py examples/demo.svg demo.gif --width 480
+```
+
 ### 参数
 
 | 参数 | 默认 | 说明 |
@@ -66,7 +82,7 @@ python svg2gif.py fig.svg fig.gif --width 800 --verify
 | `--width` / `--height` | 1200 | 输出像素尺寸，二选一；高度按 viewBox 比例算 |
 | `--max-size` | 无 | 上限，如 `3MB`、`800KB`、`2500000`。会迭代缩放直到达标 |
 | `--fps` | 20 | 帧率；帧数 = 周期 × fps |
-| `--duration` | 自动 | 动画周期（秒）。默认取 SVG 里最大的 `dur` |
+| `--duration` | 自动 | 动画周期（秒）。默认取所有动画里最长的一个（SMIL 的 `dur` + CSS 的 `animation`） |
 | `--colors` | 255 | 调色板颜色数。越小文件越小，但渐变会分层 |
 | `--bg` | 透明 | 不透明背景色，如 `#ffffff` |
 | `--loop` | 0 | 循环次数，0 = 无限 |
@@ -87,11 +103,11 @@ python svg2gif.py fig.svg fig.gif --width 800 --verify
    两套时间轴必须**同时**驱动 —— 只停 SMIL 的话，CSS 那部分会按真实时间自己跑，
    转出来的 GIF 会随机闪。透明背景靠截图的 `omit_background=True`。
 2. **调色板**：所有帧共用一张全局调色板。median cut 几乎不给画面里那几个很小的
-   高饱和色（比如金属原子球）分配槽位，所以额外预留 24 个槽，用"出现频次 + 最小
-   色距"从画面里真实存在的鲜艳色中挑出来填进去，否则绿色会被映射成青灰。
+   高饱和色（比如小面积的纯色点）分配槽位，所以额外预留 24 个槽，用"出现频次 +
+   最小色距"从画面里真实存在的鲜艳色中挑出来填进去，否则它们会被映射成灰调。
 3. **编码**：自己拼 GIF89a 字节流，因为 Pillow 的透明动画优化不可用（见下）。
 
-## 三个坑（也是这个工具存在的原因）
+## 实现说明：三个容易踩的坑
 
 **1. 透明 GIF 的帧间差分不能照抄。**
 GIF 的透明像素不是"画成透明"，而是**根本不绘制**。所以任何消失的元素（淡出的辉光、
@@ -134,8 +150,8 @@ GIF 体积近似正比于"像素数 × 帧数"，所以按下面的顺序让：
 4. 缩到底（240 px）仍超标才降色数；
 5. 最后如果离上限还有余量（< 75%），再把分辨率放回去，最多放大三次。
 
-之所以先拿帧率换而不是色数：降色数会让原子球和渐变明显变色，而 20 → 10 fps
-对这种机制图几乎看不出来。
+之所以先拿帧率换而不是色数：降色数会让小面积的饱和色和渐变明显失真，而 20 → 10 fps
+对这类示意图几乎看不出来。
 
 ## 片头片尾的"模糊闪屏"
 
@@ -158,10 +174,10 @@ GUI 里对应"跳过片头淡入/片尾淡出"和"循环交叉淡化"两个控�
 ## 周期是怎么定的
 
 取所有动画里最长的那个时长（SMIL 的 `dur` 和 CSS 的 `animation` 时长一起比）。
-只有当比它短得多（< 1/4）的装饰性动画除不尽时，才尝试 2×、3× 的倍数。
 
-之前用"全体最小公倍数"的写法，被一个 0.55 s 的小动画把 12 s 的周期推到了 132 s，
-渲染 792 帧才发现 —— 所以现在只让"显著"的动画参与整除判断。
+如果按"全体最小公倍数"取值，一个 0.55 s 的装饰动画就能把 12 s 的主周期推到 132 s，
+帧数凭空多出十倍；所以只有时长 ≥ 最长者 1/4 的"显著"动画才参与整除判断，
+最多再试 2×、3× 的倍数。
 
 ## 跨平台
 
@@ -177,14 +193,18 @@ GUI 里对应"跳过片头淡入/片尾淡出"和"循环交叉淡化"两个控�
 
 ## 许可
 
-**PolyForm Noncommercial License 1.0.0** —— 允许个人使用、研究、教学、非营利组织
-和公共机构使用，允许修改和分发；**不允许商业用途**。商用需另行取得授权。
+本项目采用 **PolyForm Noncommercial License 1.0.0**，完整条文见 [LICENSE](LICENSE)
+（官方地址：<https://polyformproject.org/licenses/noncommercial/1.0.0>）。
 
-注意：这个协议**不是 OSI 意义上的开源协议**（OSI 的定义要求允许商业使用），
-准确说法是 "source-available"。GitHub 的许可证识别可能把它显示为 "Other"。
+**可以：** 个人使用、学习与研究、教学、非营利组织和公共机构使用；修改源码；
+再分发（须随附协议文本或其链接）。
 
-如果你更想要一个学术圈更眼熟的协议，可以换成 CC BY-NC-SA 4.0；但 Creative Commons
-官方不建议把 CC 协议用于软件。
+**不可以：** 任何商业用途，包括打包进商业产品、用于有偿服务，或在企业内部用于
+生产经营流程。商业授权请通过 [Issue](https://github.com/Furfuryl-Alcohol/svg2gif/issues)
+联系维护者。
+
+需要说明的是，该协议**不属于 OSI 认可的开源许可证**（OSI 的定义要求允许商业使用），
+准确说法是 source-available（源码可用）许可。
 
 ## 限制
 

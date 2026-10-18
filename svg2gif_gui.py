@@ -18,7 +18,12 @@ import traceback
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox, colorchooser
 
-import svg2gif as core
+try:
+    import svg2gif as core
+except ImportError:
+    # python -P / -I 等模式不会把脚本目录放进 sys.path
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import svg2gif as core
 
 try:
     from PIL import Image, ImageTk

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
+  <defs>
+    <radialGradient id="ball" cx="34%" cy="28%" r="78%">
+      <stop offset="0%" stop-color="#d7ecff"/>
+      <stop offset="35%" stop-color="#4a9bf5"/>
+      <stop offset="100%" stop-color="#0e3f8f"/>
+    </radialGradient>
+  </defs>
+  <rect width="640" height="360" fill="#f6f9fc"/>
+  <ellipse cx="320" cy="300" rx="150" ry="26" fill="#dfe7ee"/>
+  <g>
+    <animateTransform attributeName="transform" type="translate"
+                      values="0 0; 0 -70; 0 0" dur="2s" repeatCount="indefinite"
+                      calcMode="spline" keyTimes="0;0.5;1"
+                      keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/>
+    <circle cx="320" cy="250" r="46" fill="url(#ball)"/>
+  </g>
+</svg>

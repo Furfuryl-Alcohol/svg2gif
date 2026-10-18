@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "svg2gif"
+version = "1.0.0"
+description = "把动画 SVG（SMIL / CSS）转成 GIF，可按分辨率或文件大小上限输出"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { file = "LICENSE" }
+authors = [
+    # 只保留公开用户名；需要邮箱时自行补充
+    { name = "Furfuryl-Alcohol" },
+]
+keywords = ["svg", "gif", "animation", "smil", "css-animation", "playwright"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Environment :: X11 Applications",
+    "Environment :: Win32 (MS Windows)",
+    "Environment :: MacOS X",
+    "Topic :: Multimedia :: Graphics :: Graphics Conversion",
+]
+dependencies = [
+    "pillow>=9.0",
+    "playwright>=1.30",
+]
+
+[project.scripts]
+svg2gif = "svg2gif:main"
+svg2gif-gui = "svg2gif_gui:main"
+
+[project.urls]
+# 仓库名按实际修改
+Homepage = "https://github.com/Furfuryl-Alcohol/svg2gif"
+
+[tool.setuptools]
+py-modules = ["svg2gif", "svg2gif_gui"]

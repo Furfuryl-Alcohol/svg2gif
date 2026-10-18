@@ -9,9 +9,13 @@
     python svg2gif.py fig.svg fig.gif --max-size 3MB
     python svg2gif.py fig.svg fig.gif --max-size 3MB --trim --crossfade 0.4
 
-依赖：playwright（含 chromium）、Pillow
+环境：Python >= 3.8、Pillow >= 9、Playwright >= 1.30
     pip install playwright pillow
-    python -m playwright install chromium
+    python -m playwright install chromium   # 约 150 MB，需要联网，装一次即可
+
+转换过程本身不联网；Chromium 只是被本地拉起的一个无头浏览器。
+图形界面（svg2gif_gui.py）另外需要 tkinter：Windows / macOS 的官方 Python 自带，
+Debian / Ubuntu 要装系统包 python3-tk。
 
 几点说明
 --------

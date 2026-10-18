@@ -8,16 +8,27 @@
 支持 **SMIL**（`<animate>` / `<animateTransform>`）和 **CSS 动画**（`@keyframes` +
 `animation:`），两种可以同时存在于一个文件里。
 
+## 环境要求
+
+| 项目 | 要求 | 说明 |
+|---|---|---|
+| Python | **≥ 3.8** | 纯 Python，无编译依赖 |
+| Pillow | ≥ 9.0 | 图像处理与 GIF 编码 |
+| Playwright | ≥ 1.30 | 驱动无头 Chromium 取帧 |
+| Chromium | 由 Playwright 管理 | `python -m playwright install chromium`，约 **150 MB**，**需要联网**，装一次即可 |
+| tkinter | 仅图形界面需要 | Windows / macOS 的官方 Python 自带；Debian / Ubuntu 需装系统包 `python3-tk` |
+
+**转换过程不联网**：Chromium 只在安装时下载，之后全部在本地完成（唯一的外部进程是
+Playwright 在本地拉起的一个无头浏览器）。Chromium 是无头运行的，不会弹窗。
+
 ## 安装
 
 ```bash
 git clone https://github.com/Furfuryl-Alcohol/svg2gif.git
 cd svg2gif
 pip install -e .
-python -m playwright install chromium
+python -m playwright install chromium      # 约 150 MB，需要联网
 ```
-
-最后一步只需要执行一次；Chromium 是无头运行的，不会弹窗。
 
 不想装成包也可以，两个脚本之间是普通 `import`，同目录直接运行即可：
 
@@ -27,8 +38,7 @@ python -m playwright install chromium
 python svg2gif.py fig.svg fig.gif
 ```
 
-Windows / macOS 的官方 Python 自带 tkinter；Debian/Ubuntu 上跑图形界面需要
-`sudo apt install python3-tk`。Linux 容器里 Chromium 常因沙箱起不来，可以：
+Linux 容器里 Chromium 常因沙箱起不来，可以：
 
 ```bash
 SVG2GIF_CHROME_ARGS="--no-sandbox" python svg2gif.py fig.svg fig.gif

@@ -6,6 +6,9 @@
     python svg2gif_gui.py fig.svg    # 顺便把文件填进去
 
 底层全部走 svg2gif.convert()，命令行和 GUI 的行为完全一致。
+
+环境：Python >= 3.8、tkinter、Pillow、Playwright（含 chromium）。
+tkinter 在 Windows / macOS 的官方 Python 里自带，Debian / Ubuntu 需装 python3-tk。
 """
 
 import os
